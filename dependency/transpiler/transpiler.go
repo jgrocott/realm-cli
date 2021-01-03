@@ -40,7 +40,7 @@ func (tes TranspileErrors) Error() string {
 	case 1:
 		return tes[0].Error()
 	default:
-		return "multiple errors in []*TranspileError"
+		return tes[0].Error()
 	}
 }
 
