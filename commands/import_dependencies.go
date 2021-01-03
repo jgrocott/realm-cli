@@ -24,13 +24,13 @@ func ImportDependencies(ui cli.Ui, groupID, appID, dir string, client api.RealmC
 
 	file, err := os.Open(fullPath)
 	if err != nil {
-		return fmt.Errorf("failed to open the dependencies file '%s': %s", fullPath, err)
+		return fmt.Errorf("Failed to open the dependencies file '%s': %s", fullPath, err)
 	}
 
 	defer file.Close()
 	fileInfo, err := file.Stat()
 	if err != nil {
-		return errors.New("failed to read dependencies from " + fullPath)
+		return errors.New("Failed to read dependencies from " + fullPath)
 	}
 
 	archive, err := utils.NewArchiveReader(file, fullPath, fileInfo.Size())
@@ -56,7 +56,7 @@ func ImportDependencies(ui cli.Ui, groupID, appID, dir string, client api.RealmC
 			break
 		}
 		if err != nil {
-			return fmt.Errorf("failed to advance to the next entry in the archive: %s", err)
+			return fmt.Errorf("Failed to advance to the next entry in the archive: %s", err)
 		}
 
 		if header.FileInfo().IsDir() {
@@ -71,7 +71,7 @@ func ImportDependencies(ui cli.Ui, groupID, appID, dir string, client api.RealmC
 
 		fileContents, err := ioutil.ReadAll(archive)
 		if err != nil {
-			return fmt.Errorf("failed to read file '%s' in the archive: %s", fullpath, err)
+			return fmt.Errorf("Failed to read file '%s' in the archive: %s", fullpath, err)
 		}
 
 		ext := filepath.Ext(fullpath)
@@ -93,7 +93,7 @@ func ImportDependencies(ui cli.Ui, groupID, appID, dir string, client api.RealmC
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	ui.Info("transpiling dependencies started.")
+	ui.Info("Transpiling dependencies started.")
 	transpiled, err := tr.Transpile(ctx, sources...)
 	if err != nil {
 		return err
@@ -108,7 +108,7 @@ func ImportDependencies(ui cli.Ui, groupID, appID, dir string, client api.RealmC
 			return err
 		}
 	}
-	ui.Info("transpiling dependencies finished.")
+	ui.Info("Transpiling dependencies finished.")
 
 	err = w.Close()
 	if err != nil {
@@ -137,7 +137,7 @@ func findDependenciesLocation(dir string) (string, error) {
 	matches, err := filepath.Glob(archFile)
 
 	if err != nil {
-		return "", fmt.Errorf("failed to find a node_modules archive in the '%s' directory: %s", dir, err)
+		return "", fmt.Errorf("Failed to find a node_modules archive in the '%s' directory: %s", dir, err)
 	}
 	if len(matches) == 0 {
 		return "", fmt.Errorf("node_modules archive not found in the '%s' directory", dir)
