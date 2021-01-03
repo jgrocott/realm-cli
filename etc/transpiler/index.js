@@ -1,8 +1,11 @@
-const babel = require('babel-standalone');
+const babel = require('@babel/standalone');
 
-const babelES2015 = require('babel-preset-es2015');
+// yearly presets now deprecated, moving to preset-env - https://babeljs.io/docs/en/babel-preset-es2015/
+const babelPresetEnv = require('@babel/preset-env');
+const babelPresetFlow = require('@babel/preset-flow');
 
-babel.registerPreset('es2015', babelES2015);
+babel.registerPreset('env', babelPresetEnv);
+babel.registerPreset('flow', babelPresetFlow);
 
 function processData(input) {
   const parsedInput = JSON.parse(input);
@@ -11,12 +14,19 @@ function processData(input) {
     errors: [],
   };
   const opts = {
-    presets: ['es2015'],
-    plugins: ['transform-object-rest-spread', 'transform-regenerator'],
+    presets: [
+      ['env', 
+      {
+        useBuiltIns: "entry",
+        corejs: 3,
+      }],
+      'flow'
+    ],
+    //plugins: ['transform-object-rest-spread', 'transform-regenerator'],
     parserOpts: {
       allowReturnOutsideFunction: true,
     },
-    sourceMap: true,
+    sourceMaps: true,
   };
   for (let i = 0; i < parsedInput.length; i++) {
     const code = parsedInput[i];
@@ -30,7 +40,9 @@ function processData(input) {
       const error = {
         index: i,
         // error message includes the snippet of code, which we don't want in the message
-        message: (e.message || '').split('\n')[0],
+        //message: (e.message || '').split('\n')[0],
+        message: e.message || '',
+        //code: 'testCode'
       };
       if (e.loc) {
         error.line = e.loc.line;
@@ -52,6 +64,7 @@ function processData(input) {
         continue;
       }
 
+      //console.log("Error: ", error);
       output.errors.push(error);
     }
   }
