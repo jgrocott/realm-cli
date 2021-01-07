@@ -1,11 +1,12 @@
+
 const babel = require('@babel/standalone');
 
 // yearly presets now deprecated, moving to preset-env - https://babeljs.io/docs/en/babel-preset-es2015/
-const babelPresetEnv = require('@babel/preset-env');
-const babelPresetFlow = require('@babel/preset-flow');
+//const babelPresetEnv = require('@babel/preset-env');
+//const babelPresetFlow = require('@babel/preset-flow');
 
-babel.registerPreset('env', babelPresetEnv);
-babel.registerPreset('flow', babelPresetFlow);
+//babel.registerPreset('env', babelPresetEnv);
+//babel.registerPreset('flow', babelPresetFlow);
 
 function processData(input) {
   const parsedInput = JSON.parse(input);
@@ -17,16 +18,21 @@ function processData(input) {
     presets: [
       ['env', 
       {
-        useBuiltIns: "entry",
-        corejs: 3,
+        useBuiltIns: "usage",
+        corejs: 3.8,
+        loose: true,
+        forceAllTransforms: true,
       }],
-      'flow'
+      //'flow'
     ],
     //plugins: ['transform-object-rest-spread', 'transform-regenerator'],
     parserOpts: {
       allowReturnOutsideFunction: true,
     },
     sourceMaps: true,
+    //ignore: [
+    //  "./node_modules/core-js/**/*.js"
+    //]
   };
   for (let i = 0; i < parsedInput.length; i++) {
     const code = parsedInput[i];
