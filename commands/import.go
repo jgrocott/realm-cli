@@ -29,6 +29,7 @@ const (
 	importStrategyReplace         = "replace"
 	importStrategyReplaceByName   = "replace-by-name"
 	importFlagIncludeDependencies = "include-dependencies"
+	importFlagDependenciesPath    = "dependency-path"
 )
 
 // Set of location and deployment model options supported by Realm backend
@@ -87,6 +88,7 @@ type ImportCommand struct {
 	flagIncludeHosting      bool
 	flagResetCDNCache       bool
 	flagIncludeDependencies bool
+	flagDependenciesPath    string
 }
 
 // Help returns long-form help information for this command
@@ -121,7 +123,13 @@ OPTIONS:
 
 
   --include-dependencies
-	Upload the node_modules archive within the "/functions" directory.
+	Upload the node_modules directory within "/functions". If --dependency-path is not specified, the contents
+	of /functions/node_modules will be transpiled and uploaded with your application
+
+
+  --dependency-path [string]
+	A path to an archive file containing the contents of your node_modules directory which has been transpiled (ES5). 
+	See https://babeljs.io/ for more information on transpiling.
 	The supported formats are: TAR, GZIP, and ZIP
 	` +
 		ic.BaseCommand.Help()
@@ -144,6 +152,7 @@ func (ic *ImportCommand) Run(args []string) int {
 	flags.BoolVar(&ic.flagIncludeHosting, importFlagIncludeHosting, false, "")
 	flags.BoolVar(&ic.flagResetCDNCache, importFlagResetCDNCache, false, "")
 	flags.BoolVar(&ic.flagIncludeDependencies, importFlagIncludeDependencies, false, "")
+	flags.StringVar(&ic.flagDependenciesPath, importFlagDependenciesPath, "", "")
 
 	if err := ic.BaseCommand.run(args); err != nil {
 		ic.UI.Error(err.Error())
@@ -417,13 +426,13 @@ func (ic *ImportCommand) importApp(dryRun bool) error {
 		ic.UI.Info("Done.")
 	}
 
-	if ic.flagIncludeDependencies {
+	if ic.flagIncludeDependencies || ic.flagDependenciesPath != "" {
 		functionsDir, dirErr := filepath.Abs(filepath.Join(appPath, utils.FunctionsRoot))
 		if dirErr != nil {
 			return dirErr
 		}
 
-		importErr := ImportDependencies(ic.UI, app.GroupID, app.ID, functionsDir, realmClient)
+		importErr := ImportDependencies(ic.UI, app.GroupID, app.ID, functionsDir, ic.flagDependenciesPath, realmClient)
 		if importErr != nil {
 			return importErr
 		}
